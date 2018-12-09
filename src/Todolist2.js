@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import 'antd/dist/antd.css';
-import {Input, Button,List} from 'antd';
 import store from './store/index'
+import TodoListUi from './store/TodoListUi'
+import {getInputChangeAction,getAddItemAction,getDeleteItemAction,getTodoList} from  './store/ActionCreater'
+import axios from 'axios'
 
 class Todolist2 extends Component{
     constructor(props){
@@ -10,30 +11,26 @@ class Todolist2 extends Component{
         this.handleChange = this.handleChange.bind(this);
         this.stroechange = this.stroechange.bind(this);
         store.subscribe(this.stroechange);
-        this.handleClick.bind(this);
+        this.handleClick=this.handleClick.bind(this);
+        this.handleDel=this.handleDel.bind(this);
       
     }
     render(){
         return(
-            < div style = {
-                {
-                    marginLeft: '30px',
-                    marginTop: '10px'
-                }
-            } >
-                < Input placeholder = "Basic usage" style={{width:'300px',marginRight:"20px"}}
-                 onChange={this.handleChange} 
-                value={this.state.inputValue} /> 
-               < Button type = "primary"  onClick={this.handleClick} > Primary </Button>
-             < List dataSource = {this.state.list} renderItem = {(item,index) => ( < List.Item onClick={this.handleDel.bind(this,index)}>{item}</List.Item>)} style={{marginTop:'10px',width:'300px'}} />
-            </div>
+          <TodoListUi inputValue={this.state.inputValue}
+            list={this.state.list}
+            handleChange={this.handleChange}
+            handleClick={this.handleClick}
+            handleDel={this.handleDel}
+          ></TodoListUi>
         )
     }
+    componentDidMount(){
+        const action=getTodoList();
+        store.dispatch(action);
+    }
     handleChange(e){
-        const action={
-            type:'change_input',
-            value:e.target.value
-        }
+        const action=getInputChangeAction(e.target.value)
         store.dispatch(action);
 
     }
@@ -41,17 +38,11 @@ class Todolist2 extends Component{
         this.setState(store.getState());
     }
     handleClick(){
-        const action={
-            type:'add_item',
-            
-        }
+        const action=getAddItemAction()
            store.dispatch(action);
     }
     handleDel(index){
-        const action={
-            type:'del_item',
-            index:index
-        }
+        const action=getDeleteItemAction(index)
          store.dispatch(action);
         // console.log(index);
     }
